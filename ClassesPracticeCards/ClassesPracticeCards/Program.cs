@@ -1,32 +1,35 @@
 ﻿namespace ClassesPracticeCards;
 
-//Есть колода с картами. Игрок достает карты, пока не решит, что ему хватит карт (может быть как выбор пользователя, так и количество сколько карт надо взять). После выводиться вся информация о вытянутых картах.
-//Возможные классы: Карта, Колода, Игрок.
-
 interface ICard
 {
     public string Name { get; }
 }
 
-interface IPuller
-{
-    public void PullCard(ICard card, IPlayerDeck playerDeck);
-}
-
 interface ICardShower
 {
+    public void ShowCards(List<ICard> cards);
+}
+
+interface IPlayerDeck
+{
+    public IReadOnlyList<ICard> Cards { get; }
+    public ICardShower CardShower { get; }
+    public void AddCard(ICard card);
+
     public void ShowCards();
 }
 
-interface IPlayerDeck : ICardShower
+interface IDeck
 {
     public IReadOnlyList<ICard> Cards { get; }
-    public void AddCard(ICard card);
-}
 
-interface IDeck : IPuller, ICardShower
-{
-    public IReadOnlyList<ICard> Cards { get; }
+    public IPlayerDeck PlayerDeck { get; }
+
+    public ICardShower CardShower { get; }
+
+    public void PullCard(ICard card);
+
+    public void ShowCards();
 }
 
 interface IPlayer
@@ -48,41 +51,50 @@ class Card : ICard
 
 class Deck : IDeck
 {
+    public Deck(List<ICard> cards, IPlayerDeck playerDeck, ICardShower cardShower)
+    {
+        _cards = cards;
+        _playerDeck = playerDeck;
+        _cardShower = cardShower;
+    }
+
     public IReadOnlyList<ICard> Cards => _cards;
+
+    public ICardShower CardShower => _cardShower;
+
+    public IPlayerDeck PlayerDeck => _playerDeck;
+
+    private readonly IPlayerDeck _playerDeck;
 
     private readonly List<ICard> _cards;
 
-    public Deck(List<ICard> cards)
-    {
-        _cards = cards;
-    }
+    private readonly ICardShower _cardShower;
 
-    public void PullCard(ICard card, IPlayerDeck playerDeck)
+
+    public void PullCard(ICard card)
     {
-        playerDeck.AddCard(card);
+        _playerDeck.AddCard(card);
         _cards.Remove(card);
     }
 
     public void ShowCards()
     {
-        foreach (var card in _cards)
-        {
-            Console.Write(card.Name + " ");
-        }
-
-        Console.WriteLine();
+        _cardShower.ShowCards(_cards);
     }
 }
 
 class PlayerDeck : IPlayerDeck
 {
     public IReadOnlyList<ICard> Cards => _cards;
+    public ICardShower CardShower => _cardShower;
 
     private readonly List<ICard> _cards;
+    private readonly ICardShower _cardShower;
 
-    public PlayerDeck(List<ICard> cards)
+    public PlayerDeck(List<ICard> cards, ICardShower cardShower)
     {
         _cards = cards;
+        _cardShower = cardShower;
     }
 
     public void AddCard(ICard card)
@@ -92,12 +104,7 @@ class PlayerDeck : IPlayerDeck
 
     public void ShowCards()
     {
-        foreach (var card in _cards)
-        {
-            Console.Write(card.Name + " ");
-        }
-
-        Console.WriteLine();
+        _cardShower.ShowCards(_cards);
     }
 }
 
@@ -113,13 +120,28 @@ class Player : IPlayer
     }
 }
 
+class CardShower : ICardShower
+{
+    public void ShowCards(List<ICard> cards)
+    {
+        foreach (var card in cards)
+        {
+            Console.Write(card.Name + " ");
+        }
+
+        Console.WriteLine();
+    }
+}
+
 class Program
 {
     static void Main(string[] args)
     {
         string inputString;
         int inputInt;
-        
+
+        IPlayerDeck playerDeck = new PlayerDeck(new List<ICard>(), new CardShower());
+
         IDeck deck = new Deck
         (new List<ICard>
         {
@@ -131,9 +153,8 @@ class Program
             new Card("Dota"),
             new Card("War"),
             new Card("Beb"),
-        });
+        }, playerDeck, new CardShower());
 
-        IPlayerDeck playerDeck = new PlayerDeck(new List<ICard>());
 
         IPlayer player = new Player(playerDeck);
 
@@ -147,7 +168,7 @@ class Program
                 playerDeck.ShowCards();
                 break;
             }
-            
+
             Console.Write("Ваш выбор: ");
             inputString = Console.ReadLine();
 
@@ -164,24 +185,17 @@ class Program
 
                 for (int i = 0; i < inputInt; i++)
                 {
-                    deck.PullCard(deck.Cards[0], playerDeck);
+                    deck.PullCard(deck.Cards[0]);
                 }
-                
             }
 
-            else if(inputString == "show")
+            else if (inputString == "show")
             {
                 Console.WriteLine("Ваши карты: ");
                 playerDeck.ShowCards();
                 Console.WriteLine("Карты в колоде: ");
                 deck.ShowCards();
             }
-            
-            
-
         }
-        
-
-
     }
 }
