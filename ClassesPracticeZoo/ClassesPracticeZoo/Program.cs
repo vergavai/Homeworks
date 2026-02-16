@@ -18,7 +18,7 @@ interface IAnimal
     public AnimalSounds Sound { get; }
 
     public string AnimalName { get; }
-    
+
     public void MakeSound();
 }
 
@@ -39,6 +39,7 @@ class Animal : IAnimal
     public string AnimalName => _animalName;
 
     public AnimalSounds Sound => _sound;
+    public AnimalSounds Sounds => _sound;
 
     private string _animalName;
 
@@ -68,7 +69,7 @@ class Cage : ICage
     public IReadOnlyList<IAnimal> Animals => _animals;
 
     private readonly List<IAnimal> _animals;
-    
+
     private string _cageName;
 
     public Cage(List<IAnimal> animals)
@@ -91,7 +92,7 @@ class Cage : ICage
         {
             Console.WriteLine(animal.AnimalName + " ");
         }
-        
+
         Console.WriteLine();
     }
 
@@ -101,7 +102,7 @@ class Cage : ICage
         {
             animal.MakeSound();
         }
-        
+
         Console.WriteLine();
     }
 }
@@ -112,34 +113,34 @@ class Program
     {
         string stringInput;
         int intInput;
-        
+
         ICage cage = new Cage(new List<IAnimal>()
         {
             new Animal("Fox", AnimalSounds.Awooo),
             new Animal("Dog", AnimalSounds.Awooo),
             new Animal("Wolf", AnimalSounds.Awooo),
         }, "Псовые");
-        
+
         ICage cage2 = new Cage(new List<IAnimal>()
         {
             new Animal("Lion", AnimalSounds.Meow),
             new Animal("Tiger", AnimalSounds.Meow),
             new Animal("Leopard", AnimalSounds.Meow),
         }, "Кошачьи");
-        
+
         ICage cage3 = new Cage(new List<IAnimal>()
         {
             new Animal("Bear", AnimalSounds.Harhar),
             new Animal("Panda", AnimalSounds.Harhar),
         }, "Медвежьи");
-        
+
         ICage cage4 = new Cage(new List<IAnimal>()
         {
             new Animal("Whale", AnimalSounds.Roar),
             new Animal("Gryphon", AnimalSounds.Roar),
         }, "Ревущие");
-        
-        List<ICage> cages = new List<ICage>() {cage, cage2, cage3, cage4};
+
+        List<ICage> cages = new List<ICage>() { cage, cage2, cage3, cage4 };
 
         while (true)
         {
@@ -157,7 +158,5 @@ class Program
                 break;
             }
         }
-        
-        
     }
 }
