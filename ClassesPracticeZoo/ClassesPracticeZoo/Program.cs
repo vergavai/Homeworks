@@ -29,12 +29,12 @@
 
     interface IAnimalDisplay
     {
-        public void DisplayAnimals(List<IAnimal> animals);
+        public void DisplayAnimals(IEnumerable<IAnimal> animals);
     }
 
     interface IAnimalSpeaker
     {
-        public void SpeakAnimalsSounds(List<IAnimal> animals);
+        public void SpeakAnimalsSounds(IEnumerable<IAnimal> animals);
     }
 
     interface ICage
@@ -58,15 +58,15 @@
         {
             Console.WriteLine($"Вы подошли к вольеру {cage.CageName}");
             Console.WriteLine("Животные: ");
-            cage.AnimalDisplay.DisplayAnimals(cage.Animals.ToList());
+            cage.AnimalDisplay.DisplayAnimals(cage.Animals);
             Console.WriteLine("Их звуки: ");
-            cage.AnimalSpeaker.SpeakAnimalsSounds(cage.Animals.ToList());
+            cage.AnimalSpeaker.SpeakAnimalsSounds(cage.Animals);
         }
     }
 
     class AnimalDisplay : IAnimalDisplay
     {
-        public void DisplayAnimals(List<IAnimal> animals)
+        public void DisplayAnimals(IEnumerable<IAnimal> animals)
         {
             foreach (var animal in animals)
             {
@@ -79,7 +79,7 @@
 
     class AnimalSpeaker : IAnimalSpeaker
     {
-        public void SpeakAnimalsSounds(List<IAnimal> animals)
+        public void SpeakAnimalsSounds(IEnumerable<IAnimal> animals)
         {
             foreach (var animal in animals)
             {
