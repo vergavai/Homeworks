@@ -24,8 +24,7 @@
 
     interface ICageApproacher
     {
-        public void ApproachCage(string cageName, List<IAnimal> animals, IAnimalDisplay animalDisplay,
-            IAnimalSpeaker animalSpeaker);
+        public void ApproachCage(ICage cage);
     }
 
     interface IAnimalDisplay
@@ -55,14 +54,13 @@
 
     class CageApproacher : ICageApproacher
     {
-        public void ApproachCage(string cageName, List<IAnimal> animals, IAnimalDisplay animalDisplay,
-            IAnimalSpeaker animalSpeaker)
+        public void ApproachCage(ICage cage)
         {
-            Console.WriteLine($"Вы подошли к вольеру {cageName}");
+            Console.WriteLine($"Вы подошли к вольеру {cage.CageName}");
             Console.WriteLine("Животные: ");
-            animalDisplay.DisplayAnimals(animals);
+            cage.AnimalDisplay.DisplayAnimals(cage.Animals.ToList());
             Console.WriteLine("Их звуки: ");
-            animalSpeaker.SpeakAnimalsSounds(animals);
+            cage.AnimalSpeaker.SpeakAnimalsSounds(cage.Animals.ToList());
         }
     }
 
@@ -97,7 +95,6 @@
         public string AnimalName => _animalName;
 
         public AnimalSounds Sound => _sound;
-        public AnimalSounds Sounds => _sound;
 
         private string _animalName;
 
@@ -142,7 +139,7 @@
 
         public void ApproachCage()
         {
-            _cageApproacher.ApproachCage(_cageName, _animals, _animalDisplay, _animalSpeaker);
+            _cageApproacher.ApproachCage(this);
         }
 
         public void DisplayAnimals()
@@ -162,32 +159,36 @@
         {
             string stringInput;
             int intInput;
+            
+            AnimalDisplay animalDisplay = new AnimalDisplay();
+            AnimalSpeaker animalSpeaker = new AnimalSpeaker();
+            CageApproacher cageApproacher = new CageApproacher();
 
             ICage cage = new Cage(new List<IAnimal>()
             {
                 new Animal("Fox", AnimalSounds.Awooo),
                 new Animal("Dog", AnimalSounds.Awooo),
                 new Animal("Wolf", AnimalSounds.Awooo),
-            }, "Псовые", new AnimalDisplay(), new AnimalSpeaker(), new CageApproacher());
+            }, "Псовые", animalDisplay, animalSpeaker, cageApproacher);
 
             ICage cage2 = new Cage(new List<IAnimal>()
             {
                 new Animal("Lion", AnimalSounds.Meow),
                 new Animal("Tiger", AnimalSounds.Meow),
                 new Animal("Leopard", AnimalSounds.Meow),
-            }, "Кошачьи", new AnimalDisplay(), new AnimalSpeaker(), new CageApproacher());
+            }, "Кошачьи", animalDisplay, animalSpeaker, cageApproacher);
 
             ICage cage3 = new Cage(new List<IAnimal>()
             {
                 new Animal("Bear", AnimalSounds.Harhar),
                 new Animal("Panda", AnimalSounds.Harhar),
-            }, "Медвежьи", new AnimalDisplay(), new AnimalSpeaker(), new CageApproacher());
+            }, "Медвежьи", animalDisplay, animalSpeaker, cageApproacher);
 
             ICage cage4 = new Cage(new List<IAnimal>()
             {
                 new Animal("Whale", AnimalSounds.Roar),
                 new Animal("Gryphon", AnimalSounds.Roar),
-            }, "Ревущие", new AnimalDisplay(), new AnimalSpeaker(), new CageApproacher());
+            }, "Ревущие", animalDisplay, animalSpeaker, cageApproacher);
 
             List<ICage> cages = new List<ICage>() { cage, cage2, cage3, cage4 };
 
