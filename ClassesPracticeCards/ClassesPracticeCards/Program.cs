@@ -1,6 +1,6 @@
-﻿namespace ClassesPracticeCards;
-
-interface ICard
+﻿namespace ClassesPracticeCards
+{
+    interface ICard
 {
     public string Name { get; }
 }
@@ -8,6 +8,11 @@ interface ICard
 interface ICardShower
 {
     public void ShowCards(List<ICard> cards);
+}
+
+interface ICardPuller
+{
+    public void PullCard(ICard card);
 }
 
 interface IPlayerDeck
@@ -26,8 +31,10 @@ interface IDeck
     public IPlayerDeck PlayerDeck { get; }
 
     public ICardShower CardShower { get; }
+    
 
-    public void PullCard(ICard card);
+    public ICardPuller CardPuller { get; }
+    public void PullCard();
 
     public void ShowCards();
 }
@@ -51,16 +58,11 @@ class Card : ICard
 
 class Deck : IDeck
 {
-    public Deck(List<ICard> cards, IPlayerDeck playerDeck, ICardShower cardShower)
-    {
-        _cards = cards;
-        _playerDeck = playerDeck;
-        _cardShower = cardShower;
-    }
-
     public IReadOnlyList<ICard> Cards => _cards;
 
     public ICardShower CardShower => _cardShower;
+
+    public ICardPuller CardPuller => _cardPuller;
 
     public IPlayerDeck PlayerDeck => _playerDeck;
 
@@ -69,12 +71,20 @@ class Deck : IDeck
     private readonly List<ICard> _cards;
 
     private readonly ICardShower _cardShower;
+    private readonly ICardPuller _cardPuller;
 
-
-    public void PullCard(ICard card)
+    public Deck(List<ICard> cards, IPlayerDeck playerDeck, ICardShower cardShower)
     {
-        _playerDeck.AddCard(card);
-        _cards.Remove(card);
+        _cards = cards;
+        _playerDeck = playerDeck;
+        _cardShower = cardShower;
+    }
+
+
+    public void PullCard()
+    {
+        _playerDeck.AddCard(_cards[0]);
+        _cards.Remove(_cards[0]);
     }
 
     public void ShowCards()
@@ -141,7 +151,7 @@ class Program
         int inputInt;
 
         IPlayerDeck playerDeck = new PlayerDeck(new List<ICard>(), new CardShower());
-
+        
         IDeck deck = new Deck
         (new List<ICard>
         {
@@ -185,7 +195,7 @@ class Program
 
                 for (int i = 0; i < inputInt; i++)
                 {
-                    deck.PullCard(deck.Cards[0]);
+                    deck.PullCard();
                 }
             }
 
@@ -199,3 +209,5 @@ class Program
         }
     }
 }
+}
+
