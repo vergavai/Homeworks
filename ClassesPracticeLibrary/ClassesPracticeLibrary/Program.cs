@@ -51,7 +51,6 @@
 
             Console.WriteLine();
         }
-        
     }
 
     static class BookSorter
@@ -103,9 +102,9 @@
             IBook book3 = new Book("Sad Vovan", "Alen", new DateOnly(2025, 06, 6));
             IBook book4 = new Book("Hero of our time", "Lermontov", new DateOnly(1924, 10, 27));
             IBook book5 = new Book("8000 oborotov", "Ozon671", new DateOnly(2023, 07, 10));
-            
-            ILibrary library = new Library(new List<IBook> {book1, book2, book3, book4, book5});
-            
+
+            ILibrary library = new Library(new List<IBook> { book1, book2, book3, book4, book5 });
+
             BookDisplay.DisplayBooks(library.Books);
             BookDisplay.DisplayBooks(BookSorter.SortByTitle(library.Books));
             BookDisplay.DisplayBooks(BookSorter.SortByAuthor(library.Books));
