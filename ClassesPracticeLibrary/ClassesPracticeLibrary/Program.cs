@@ -38,12 +38,14 @@
         {
             foreach (IBook book in books)
             {
-                Console.Write($"Title: {book.Title}, Author: {book.Author}, Date: {book.Date}");
+                Console.Write($"Title: {book.Title}, Author: {book.Author}, Date: {book.Date}\n");
             }
+
+            Console.WriteLine();
         }
     }
 
-    class SortByTitleDescendingStrategy : IBookSortStrategy
+    class SortByTitleStrategy : IBookSortStrategy
     {
         public IReadOnlyList<IBook> Sort(IEnumerable<IBook> books)
         {
@@ -51,7 +53,7 @@
         }
     }
 
-    class SortByAuthorDescendingStrategy : IBookSortStrategy
+    class SortByAuthorStrategy : IBookSortStrategy
     {
         public IReadOnlyList<IBook> Sort(IEnumerable<IBook> books)
         {
@@ -59,7 +61,7 @@
         }
     }
 
-    class SortByDateDescendingStrategy : IBookSortStrategy
+    class SortByDateStrategy : IBookSortStrategy
     {
         public IReadOnlyList<IBook> Sort(IEnumerable<IBook> books)
         {
@@ -67,18 +69,11 @@
         }
     }
 
-    class BookSorterContext
+    class BookSorter
     {
-        private readonly IBookSortStrategy _strategy;
-
-        public BookSorterContext(IBookSortStrategy strategy)
+        public IReadOnlyList<IBook> SortBooks(IEnumerable<IBook> books, IBookSortStrategy strategy)
         {
-            _strategy = strategy;
-        }
-
-        public IReadOnlyList<IBook> SortBooks(IEnumerable<IBook> books)
-        {
-            return _strategy.Sort(books);
+            return strategy.Sort(books);
         }
     }
 
@@ -99,7 +94,6 @@
             _date = date;
         }
     }
-
 
     class Library : ILibrary
     {
@@ -127,7 +121,7 @@
     {
         static void Main(string[] args)
         {
-            BookSorterContext sorterContext = new BookSorterContext(new SortByDateDescendingStrategy());
+            BookSorter sorter = new BookSorter();
             IBookDisplay bookDisplay = new BookDisplay();
 
             IBook book1 = new Book("Silent Dan", "Ozon671", new DateOnly(2022, 05, 10));
@@ -138,8 +132,8 @@
 
             ILibrary library = new Library(new List<IBook> { book1, book2, book3, book4, book5 });
 
+            bookDisplay.DisplayBooks(sorter.SortBooks(library.Books, new SortByDateStrategy()));
             bookDisplay.DisplayBooks(library.Books);
-            bookDisplay.DisplayBooks(sorterContext.SortBooks(library.Books));
         }
     }
 }
