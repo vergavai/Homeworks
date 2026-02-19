@@ -14,12 +14,72 @@
         public DateOnly Date { get; }
     }
 
+    interface IBookDisplay
+    {
+        public void DisplayBooks(IEnumerable<IBook> books);
+    }
+
+    interface IBookSortStrategy
+    {
+        IReadOnlyList<IBook> Sort(IEnumerable<IBook> books);
+    }
+
     interface ILibrary
     {
         public IReadOnlyList<IBook> Books { get; }
 
         public void AddBook(IBook book);
         public void RemoveBook(IBook book);
+    }
+
+    class BookDisplay : IBookDisplay
+    {
+        public void DisplayBooks(IEnumerable<IBook> books)
+        {
+            foreach (IBook book in books)
+            {
+                Console.Write($"Title: {book.Title}, Author: {book.Author}, Date: {book.Date}");
+            }
+        }
+    }
+
+    class SortByTitleDescendingStrategy : IBookSortStrategy
+    {
+        public IReadOnlyList<IBook> Sort(IEnumerable<IBook> books)
+        {
+            return books.OrderByDescending(book => book.Title, StringComparer.Ordinal).ToList();
+        }
+    }
+
+    class SortByAuthorDescendingStrategy : IBookSortStrategy
+    {
+        public IReadOnlyList<IBook> Sort(IEnumerable<IBook> books)
+        {
+            return books.OrderByDescending(book => book.Author, StringComparer.Ordinal).ToList();
+        }
+    }
+
+    class SortByDateDescendingStrategy : IBookSortStrategy
+    {
+        public IReadOnlyList<IBook> Sort(IEnumerable<IBook> books)
+        {
+            return books.OrderByDescending(book => book.Date).ToList();
+        }
+    }
+
+    class BookSorterContext
+    {
+        private readonly IBookSortStrategy _strategy;
+
+        public BookSorterContext(IBookSortStrategy strategy)
+        {
+            _strategy = strategy;
+        }
+
+        public IReadOnlyList<IBook> SortBooks(IEnumerable<IBook> books)
+        {
+            return _strategy.Sort(books);
+        }
     }
 
     class Book : IBook
@@ -40,36 +100,6 @@
         }
     }
 
-    static class BookDisplay
-    {
-        public static void DisplayBooks(IEnumerable<IBook> books)
-        {
-            foreach (var book in books)
-            {
-                Console.Write($"Title: {book.Title}, Author: {book.Author}, Date: {book.Date}\n");
-            }
-
-            Console.WriteLine();
-        }
-    }
-
-    static class BookSorter
-    {
-        public static List<IBook> SortByTitle(IEnumerable<IBook> books)
-        {
-            return books.OrderByDescending(book => book.Title).ToList();
-        }
-
-        public static List<IBook> SortByAuthor(IEnumerable<IBook> books)
-        {
-            return books.OrderByDescending(book => book.Author).ToList();
-        }
-
-        public static List<IBook> SortByDate(IEnumerable<IBook> books)
-        {
-            return books.OrderByDescending(book => book.Date).ToList();
-        }
-    }
 
     class Library : ILibrary
     {
@@ -97,6 +127,9 @@
     {
         static void Main(string[] args)
         {
+            BookSorterContext sorterContext = new BookSorterContext(new SortByDateDescendingStrategy());
+            IBookDisplay bookDisplay = new BookDisplay();
+
             IBook book1 = new Book("Silent Dan", "Ozon671", new DateOnly(2022, 05, 10));
             IBook book2 = new Book("Onegin", "Canon", new DateOnly(1756, 10, 16));
             IBook book3 = new Book("Sad Vovan", "Alen", new DateOnly(2025, 06, 6));
@@ -105,10 +138,8 @@
 
             ILibrary library = new Library(new List<IBook> { book1, book2, book3, book4, book5 });
 
-            BookDisplay.DisplayBooks(library.Books);
-            BookDisplay.DisplayBooks(BookSorter.SortByTitle(library.Books));
-            BookDisplay.DisplayBooks(BookSorter.SortByAuthor(library.Books));
-            BookDisplay.DisplayBooks(BookSorter.SortByDate(library.Books));
+            bookDisplay.DisplayBooks(library.Books);
+            bookDisplay.DisplayBooks(sorterContext.SortBooks(library.Books));
         }
     }
 }
